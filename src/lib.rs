@@ -42,9 +42,7 @@ mod tests {
 
             // The parameters and returns arrays.
             let params = &[WasmEdge_ValueGenI32(2), WasmEdge_ValueGenI32(8)] as *const _;
-            let ret = WasmEdge_ValueGenI32(0);
-            let boxed_ret = Box::new(ret);
-            let p_ret = Box::into_raw(boxed_ret);
+            let mut returns = std::mem::MaybeUninit::<WasmEdge_Value>::uninit();
 
             // Wasm module name.
             let wasm_name = CString::new("add.wasm").expect("Failed to CString::new wasm name.");
@@ -52,13 +50,13 @@ mod tests {
             let func_name = CString::new("add").expect("Failed to CString::new add function.");
             let func_name_str = WasmEdge_StringCreateByCString(func_name.as_ptr());
             // Run the WASM function from file.
-            let res = WasmEdge_VMRunWasmFromFile(
+            let result = WasmEdge_VMRunWasmFromFile(
                 vm_ctx,
                 wasm_name.as_ptr(),
                 func_name_str,
                 params,
                 2,
-                p_ret,
+                returns.as_mut_ptr(),
                 1,
             );
 
@@ -67,8 +65,8 @@ mod tests {
             WasmEdge_ConfigureDelete(conf_ctx);
             WasmEdge_StringDelete(func_name_str);
 
-            assert!(WasmEdge_ResultOK(res));
-            assert_eq!(10 as i32, WasmEdge_ValueGetI32(*Box::from_raw(p_ret)));
+            assert!(WasmEdge_ResultOK(result));
+            assert_eq!(10 as i32, WasmEdge_ValueGetI32(returns.assume_init()));
         }
     }
 }
