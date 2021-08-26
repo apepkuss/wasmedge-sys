@@ -4,8 +4,10 @@ use std::path::PathBuf;
 fn main() {
     println!("cargo:rustc-link-lib=wasmedge_c");
     println!("cargo:rustc-link-lib=wasmedge-tensorflow_c");
+    println!("cargo:rustc-link-lib=wasmedge-tensorflowlite_c");
     println!("cargo:rustc-link-lib=tensorflow");
     println!("cargo:rustc-link-lib=tensorflow_framework");
+    println!("cargo:rustc-link-lib=tensorflowlite_c");
     println!("cargo:rerun-if-changed=wrapper.h");
 
     let out_file = PathBuf::from(env::var("OUT_DIR").unwrap()).join("wasmedge.rs");
